@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    container_name: socialfe
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    # volumes:
+    #   - ./:/app
+    #   - /app/node_modules

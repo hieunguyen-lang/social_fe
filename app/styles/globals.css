@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary: #000000;
+  --secondary: #FFFFFF;
+  --accent1: #0EA5E9;
+  --accent2: #0EA5E9;
+  --accent3: #EF4444;
+  --darkgray: #1F2937;
+  --lightgray: #F3F4F6;
+}
+
+html, body {
+  background-color: #18181b !important;
+  color: #e5e7eb;
+}
+
+@media (min-width: 768px) {
+  html {
+    /* Đã xóa zoom: 0.75; để tránh lỗi bắt chuột */
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-accent1 text-white px-4 py-2 rounded-md hover:bg-accent1/90 transition-all;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-darkgray border border-darkgray/20 px-4 py-2 rounded-md hover:bg-lightgray transition-all;
+  }
+  
+  .card {
+    @apply bg-white p-6 rounded-lg shadow-md border border-lightgray;
+  }
+  
+  .dashboard-card {
+    @apply bg-white p-4 rounded-xl shadow-md border border-lightgray hover:shadow-lg transition-all;
+  }
+}
+
+.pagination-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Chart.js fix: ép canvas luôn fit container */
+.chartjs-render-monitor, canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  display: block;
+}
+
+.react-datepicker-popper {
+  z-index: 9999 !important;
+} 
