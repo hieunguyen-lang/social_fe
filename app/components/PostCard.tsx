@@ -57,7 +57,64 @@ function TikTokEmbed({ url }: { url: string }) {
   );
 }
 
+// Utility: Convert UTC timestamp to GMT+7 and format
+function formatToGMT7(utcTimestamp: string | number | Date) {
+  if (!utcTimestamp) return '';
+  try {
+    let date: Date;
+    if (typeof utcTimestamp === 'number') {
+      // Nếu là số và nhỏ hơn 10^12 thì là giây, cần nhân 1000
+      date = utcTimestamp < 1e12 ? new Date(utcTimestamp * 1000) : new Date(utcTimestamp);
+    } else {
+      date = new Date(utcTimestamp);
+    }
+    // Add 7 hours for GMT+7
+    const gmt7Date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    return gmt7Date.toLocaleString('vi-VN', {
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return String(utcTimestamp);
+  }
+}
 
+// Hàm highlight keyword trong message
+function highlightKeywords(message: string, key_word: string) {
+  if (!key_word) return message;
+  const keyword = key_word.trim();
+  if (!keyword) return message;
+  // Tạo regex để match keyword, không phân biệt hoa thường
+  const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')})`, 'gi');
+  const parts = message.split(regex);
+  return parts.map((part, i) =>
+    part.toLowerCase() === keyword.toLowerCase() ? (
+      <mark key={i} className="bg-yellow-300 text-black px-1 rounded">{part}</mark>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
+}
+
+const bgMap: Record<string, string> = {
+  facebook: 'bg-[#1877F3]',
+  instagram: 'bg-gradient-to-br from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]',
+  threads: 'bg-[#262626]',
+  x: 'bg-[#000000]',
+  twitter: 'bg-[#000000]',
+  tumblr: 'bg-[#36465D]',
+  tiktok: 'bg-[#010101]',
+  default: 'bg-[#18181b]/80',
+};
+
+// Đặt biến domain proxy theo môi trường
+const PROXY_DOMAIN = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:8002'
+  : 'http://45.32.104.37:8002';
 
 export default function PostCard({ post }: PostCardProps) {
   const iconKey = post.post_type?.toLowerCase();
@@ -76,39 +133,20 @@ export default function PostCard({ post }: PostCardProps) {
   };
   const gradient = gradientMap[iconKey || ''] || gradientMap.default;
 
-  // Hàm highlight keyword trong message
-  function highlightKeywords(message: string, key_word: string) {
-    if (!key_word) return message;
-    const keyword = key_word.trim();
-    if (!keyword) return message;
-    // Tạo regex để match keyword, không phân biệt hoa thường
-    const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')})`, 'gi');
-    const parts = message.split(regex);
-    return parts.map((part, i) =>
-      part.toLowerCase() === keyword.toLowerCase() ? (
-        <mark key={i} className="bg-yellow-300 text-black px-1 rounded">{part}</mark>
-      ) : (
-        <React.Fragment key={i}>{part}</React.Fragment>
-      )
-    );
-  }
-
-  const bgMap: Record<string, string> = {
-    facebook: 'bg-[#1877F3]',
-    instagram: 'bg-gradient-to-br from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]',
-    threads: 'bg-[#262626]',
-    x: 'bg-[#000000]',
-    twitter: 'bg-[#000000]',
-    tumblr: 'bg-[#36465D]',
-    tiktok: 'bg-[#010101]',
-    default: 'bg-[#18181b]/80',
-  };
   const bgColor = bgMap[iconKey || ''] || bgMap.default;
 
-  // Đặt biến domain proxy theo môi trường
-  const PROXY_DOMAIN = process.env.NODE_ENV === 'development'
-    ? 'http://localhost:8002'
-    : 'http://45.32.104.37:8002';
+  // Map màu cho icon theo nền tảng
+  const iconColorMap: Record<string, string> = {
+    facebook: '#1877F3',
+    instagram: '#E1306C',
+    threads: '#262626',
+    x: '#000000',
+    twitter: '#1DA1F2',
+    tumblr: '#36465D',
+    tiktok: '#25F4EE',
+    default: '#888888',
+  };
+  const iconColor = iconColorMap[iconKey || ''] || iconColorMap.default;
 
   return (
     <div
@@ -124,17 +162,24 @@ export default function PostCard({ post }: PostCardProps) {
           {icon && (
             <FontAwesomeIcon
               icon={icon}
-              className="w-6 h-6 text-gray-500 bg-[#18181b] border border-white/10 rounded-full shadow p-1"
+              className="w-6 h-6 bg-[#18181b] border border-white/10 rounded-full shadow p-1"
+              style={{ color: iconColor }}
             />
           )}
           <span className="font-semibold text-white">{post.author_username}</span>
         </div>
         <span className="text-gray-400">{post.content_created}</span>
       </div>
+      {/* Thời gian tạo bài viết (GMT+7) */}
+      {post.post_created_timestamp && (
+        <div className="text-xs text-gray-400 mb-1">
+          🕒 {formatToGMT7(post.post_created_timestamp)}
+        </div>
+      )}
 
       {/* Ảnh nổi bật nếu có */}
       {post.post_image && (
-        post.post_type === 'instagram' ? (
+        (post.post_type === 'instagram' || post.post_type === 'threads') ? (
           <img
             src={`${PROXY_DOMAIN}/seacrhsocial/proxy?url=${encodeURIComponent(post.post_image)}`}
             alt="Post image"
