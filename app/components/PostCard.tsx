@@ -1,5 +1,5 @@
 import { TablePostData } from '../types';
-import { faFacebook, faThreads, faInstagram, faXTwitter, faTumblr, faTiktok, IconDefinition } from '@fortawesome/free-brands-svg-icons';
+import { faFacebook, faThreads, faInstagram, faXTwitter, faTumblr, faTiktok, IconDefinition,faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useRef } from 'react';
 type PostCardProps = {
@@ -13,6 +13,7 @@ const faIconMap: Record<string, IconDefinition> = {
   twitter: faXTwitter,
   tumblr: faTumblr,
   tiktok: faTiktok,
+  linkedin: faLinkedin
 };
 
 // TikTok nhúng
@@ -69,7 +70,7 @@ function formatToGMT7(utcTimestamp: string | number | Date) {
       date = new Date(utcTimestamp);
     }
     // Add 7 hours for GMT+7
-    const gmt7Date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    const gmt7Date = new Date(date.getTime() + 0 * 60 * 60 * 1000);
     return gmt7Date.toLocaleString('vi-VN', {
       hour12: false,
       year: 'numeric',
@@ -108,6 +109,7 @@ const bgMap: Record<string, string> = {
   twitter: 'bg-[#000000]',
   tumblr: 'bg-[#36465D]',
   tiktok: 'bg-[#010101]',
+  linkedin: 'bg-[#0A66C2]', 
   default: 'bg-[#18181b]/80',
 };
 
@@ -143,6 +145,7 @@ export default function PostCard({ post }: PostCardProps) {
     x: '#000000',
     twitter: '#1DA1F2',
     tumblr: '#36465D',
+    linkedin: '#0A66C2',
     tiktok: '#25F4EE',
     default: '#888888',
   };
@@ -172,7 +175,7 @@ export default function PostCard({ post }: PostCardProps) {
       </div>
       {/* Thời gian tạo bài viết (GMT+7) */}
       {post.post_created_timestamp && (
-        <div className="text-xs text-gray-400 mb-1">
+        <div className="text-xs text-gray-600 mb-1">
           🕒 {formatToGMT7(post.post_created_timestamp)}
         </div>
       )}
